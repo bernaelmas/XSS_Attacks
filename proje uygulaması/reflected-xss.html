@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reflected XSS Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        h2 {
+            color: #2c3e50;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        .warning {
+            color: red;
+            font-weight: bold;
+        }
+        .explanation {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-left: 3px solid #3498db;
+            margin-bottom: 20px;
+        }
+        .highlight {
+            background-color: yellow;
+            padding: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Reflected XSS Demo - Düzeltilmiş</h1>
+        
+        <div class="explanation">
+            <p>Reflected XSS (Yansıtılan XSS), kullanıcı girdisinin doğrudan yanıtta (response) yansıtıldığı bir saldırı türüdür.</p>
+            <p class="warning">NOT: Bu demo, XSS saldırısını göstermek için özellikle savunmasız bırakılmıştır!</p>
+        </div>
+        
+        <!-- Arama Formu -->
+        <h2>Ürün Arama</h2>
+        <form id="searchForm">
+            <input type="text" id="searchQuery" placeholder="Bir ürün arayın...">
+            <button type="submit">Ara</button>
+        </form>
+        
+        <!-- Arama Sonuçlarının Gösterileceği Alan -->
+        <div id="searchResults" class="results" style="display: none;">
+            <!-- Arama sonuçları buraya eklenecek -->
+        </div>
+        
+        <!-- Saldırı Örneği -->
+        <div class="explanation">
+            <h3>Reflected XSS Saldırı Örneği</h3>
+            <p>Aşağıdaki kodlardan birini arama kutusuna yazıp "Ara" düğmesine tıklayın:</p>
+            <ol>
+                <li><code>&lt;script&gt;alert('Reflected XSS Saldırısı Başarılı!');&lt;/script&gt;</code></li>
+                <li><code>&lt;img src="x" onerror="alert('Reflected XSS!')"&gt;</code></li>
+            </ol>
+            
+            <p>Alternatif olarak, aşağıdaki URL'yi tarayıcı adres çubuğuna yazabilirsiniz:</p>
+            <code>file:///path/to/fixed-reflected-xss.html?q=&lt;script&gt;alert('URL Üzerinden Reflected XSS!');&lt;/script&gt;</code>
+            
+            <h3>Nasıl Çalışır?</h3>
+            <p>1. Kullanıcı, kötü niyetli kodu arama formu üzerinden gönderir.</p>
+            <p>2. Sunucu (veya bu demoda JavaScript), bu kodu doğrudan yanıtta kullanır.</p>
+            <p>3. Tarayıcı, yanıttaki kötü niyetli kodu çalıştırır.</p>
+            <p>4. Reflected XSS, genellikle e-posta veya sosyal medya aracılığıyla özel hazırlanmış linklerle dağıtılır.</p>
+        </div>
+    </div>
+    
+    <script>
+        // Reflected XSS Demo İçin JavaScript
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const searchQuery = document.getElementById('searchQuery').value;
+            
+            // URL'ye parametreyi ekle (tarayıcı geçmişinde görünmesi için)
+            const url = new URL(window.location.href);
+            url.searchParams.set('q', searchQuery);
+            window.history.pushState({}, '', url);
+            
+            displaySearchResults(searchQuery);
+        });
+        
+        // URL'den parametreleri oku ve arama sonuçlarını göster
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchQuery = urlParams.get('q');
+            
+            if (searchQuery) {
+                document.getElementById('searchQuery').value = searchQuery;
+                displaySearchResults(searchQuery);
+            }
+        });
+        
+        function displaySearchResults(query) {
+            const resultsDiv = document.getElementById('searchResults');
+            
+            if (query.trim() === '') {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+            
+            // GÜVENSİZ KOD: Girdi doğrulaması ve temizleme yapılmıyor
+            const resultsHTML = `
+                <h3>Arama Sonuçları</h3>
+                <p>"<span class="highlight">${query}</span>" için sonuçlar:</p>
+                <ul>
+                    <li>Bu arama için hiçbir ürün bulunamadı.</li>
+                </ul>
+                <p>Başka bir arama terimi deneyin.</p>
+            `;
+            
+            // GÜVENLİK AÇIĞI: innerHTML kullanımı
+            resultsDiv.innerHTML = resultsHTML;
+            resultsDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

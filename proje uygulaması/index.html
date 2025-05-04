@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XSS Saldırı Türleri Demo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>XSS Saldırı Türleri Demo</h1>
+        
+        <div class="explanation">
+            <p>Bu demo uygulaması, üç farklı XSS saldırı türünü göstermek için tasarlanmıştır.</p>
+            <p class="warning">NOT: Gerçek bir web uygulamasında bu güvenlik açıkları olmamalıdır!</p>
+        </div>
+        
+        <div class="navigation">
+            <a href="stored-xss.html" class="nav-button">Stored XSS Demo</a>
+            <a href="reflected-xss.html" class="nav-button">Reflected XSS Demo</a>
+            <a href="dom-xss.html" class="nav-button">DOM-Based XSS Demo</a>
+        </div>
+        
+        <div class="info-box">
+            <h2>XSS Saldırıları Hakkında</h2>
+            <p>Cross-Site Scripting (XSS) saldırıları, saldırganın hedef web sitesinde istemci tarafı script kodları çalıştırmasına izin veren güvenlik açıklarıdır.</p>
+            
+            <h3>XSS Saldırı Türleri:</h3>
+            <ul>
+                <li><strong>Stored XSS:</strong> Kötü niyetli kod veritabanına kaydedilir ve daha sonra diğer kullanıcılara sunulur.</li>
+                <li><strong>Reflected XSS:</strong> Kötü niyetli kod genellikle URL parametreleri aracılığıyla gönderilir ve sunucu yanıtında hemen yansıtılır.</li>
+                <li><strong>DOM-Based XSS:</strong> Kötü niyetli kod tamamen tarayıcı tarafında işlenir ve DOM yapısını değiştirir.</li>
+            </ul>
+            
+            <h3>Korunma Yöntemleri:</h3>
+            <ul>
+                <li>Kullanıcı girdilerini doğrulama ve temizleme (sanitization)</li>
+                <li>Content Security Policy (CSP) başlıkları kullanımı</li>
+                <li>HttpOnly özellikli çerezler kullanımı</li>
+                <li>Çıktı kodlaması (output encoding) uygulaması</li>
+                <li>Modern framework'lerin güvenlik özelliklerinden yararlanma</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOM-Based XSS Demo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>DOM-Based XSS Demo</h1>
+        
+        <div class="explanation">
+            <p>DOM-Based XSS, JavaScript'in DOM yapısını değiştirdiği ve kötü niyetli kodun tamamen tarayıcı tarafında çalıştırıldığı bir saldırı türüdür.</p>
+            <p class="warning">Gerçek web uygulamalarında, URL parametreleri de dahil olmak üzere tüm kullanıcı girdileri güvenli bir şekilde işlenmelidir!</p>
+        </div>
+        
+        <!-- Kullanıcı Profili -->
+        <h2>Kullanıcı Karşılama Sayfası</h2>
+        <div id="welcomeMessage">
+            <!-- Karşılama mesajı buraya eklenecek -->
+        </div>
+        
+        <!-- Saldırı Örneği -->
+        <div class="info-box">
+            <h3>DOM-Based XSS Saldırı Örneği</h3>
+            <p>URL'nin sonuna aşağıdaki parametreyi ekleyin:</p>
+            <div class="code-example">
+                ?name=&lt;script&gt;alert('DOM-Based XSS Saldırısı Başarılı!');&lt;/script&gt;
+            </div>
+            <p>Ya da aşağıdaki gibi bir URL'yi deneyin:</p>
+            <div class="code-example">
+                dom-xss.html?name=&lt;img src="x" onerror="alert('DOM XSS!')"&gt;
+            </div>
+            
+            <h3>Nasıl Çalışır?</h3>
+            <p>1. URL'den veya başka bir DOM kaynağından veri alınır (örn. window.location).</p>
+            <p>2. JavaScript, bu veriyi doğrulamadan ve temizlemeden DOM'da kullanır.</p>
+            <p>3. Kötü niyetli kod tarayıcıda çalıştırılır ve DOM manipüle edilir.</p>
+            <p>4. DOM-Based XSS saldırıları sunucuya ulaşmaz, tamamen istemci tarafında gerçekleşir.</p>
+            
+            <h3>Gerçek Dünya Örneği</h3>
+            <p>URL'den parametreler alan ve bu parametreleri doğrudan DOM'a ekleyen tek sayfa uygulamaları (SPA), hash tabanlı yönlendirme kullanan uygulamalar ve tarayıcı tarafında kullanıcı girdisini işleyen uygulamalar bu saldırıya açık olabilir.</p>
+            
+            <h3>Test Parametreleri</h3>
+            <div class="code-example">
+                <p>Aşağıdaki parametreleri URL'ye ekleyebilirsiniz:</p>
+                <ul>
+                    <li><a href="?name=Kullanıcı">?name=Kullanıcı</a> (normal parametre)</li>
+                    <li><a href="?name=&lt;b&gt;Kalın Yazı&lt;/b&gt;">?name=&lt;b&gt;Kalın Yazı&lt;/b&gt;</a> (HTML etiketi)</li>
+                    <li><a href="?name=&lt;img src='x' onerror='alert(`DOM XSS!`)'&gt;">?name=&lt;img src='x' onerror='alert(`DOM XSS!`)'&gt;</a> (XSS)</li>
+                </ul>
+            </div>
+            
+            <h3>Korunma Yöntemleri</h3>
+            <p>- URL parametrelerinden gelen verileri HTML kodlaması yaparak kullanın</p>
+            <p>- Güvenli DOM API'leri kullanın (innerText, textContent gibi innerHTML yerine)</p>
+            <p>- Tarayıcı tarafı veri doğrulaması ve temizleme kütüphaneleri (DOMPurify gibi) kullanın</p>
+            <p>- Content-Security-Policy (CSP) başlıklarını yapılandırın</p>
+        </div>
+        
+        <a href="index.html" class="back-link">← Ana Sayfaya Dön</a>
+    </div>
+    
+    <script>
+        // DOM-Based XSS Demo İçin JavaScript
+        function displayWelcomeMessage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const name = urlParams.get('name');
+            
+            if (name) {
+                // GÜVENSİZ KOD: Girdi doğrulaması ve temizleme yapılmıyor
+                const welcomeMessage = `
+                    <div class="comment">
+                        <h3>Hoş geldiniz!</h3>
+                        <p>Merhaba, ${name}! Profilinize hoş geldiniz.</p>
+                    </div>
+                `;
+                
+                // GÜVENLİK AÇIĞI: innerHTML kullanımı
+                document.getElementById('welcomeMessage').innerHTML = welcomeMessage;
+            } else {
+                document.getElementById('welcomeMessage').innerHTML = `
+                    <div class="comment">
+                        <p>Karşılama mesajı görmek için URL'ye "?name=AdınızSoyadınız" ekleyin.</p>
+                        <p>Örnek: <code>dom-xss.html?name=Ahmet Yılmaz</code></p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Sayfa yüklendiğinde fonksiyonu çağır
+        window.addEventListener('load', displayWelcomeMessage);
+    </script>
+</body>
+</html>

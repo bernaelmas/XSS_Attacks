@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stored XSS Demo - Çalışır Versiyon</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        h2 {
+            color: #2c3e50;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .comments {
+            margin-top: 20px;
+        }
+        .comment {
+            border-bottom: 1px solid #eee;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border-left: 3px solid #3498db;
+        }
+        .warning {
+            color: red;
+            font-weight: bold;
+        }
+        .explanation {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-left: 3px solid #3498db;
+            margin-bottom: 20px;
+        }
+        .code-example {
+            background-color: #f0f0f0;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stored XSS Demo</h1>
+        
+        <div class="explanation">
+            <p>Stored XSS (Kalıcı XSS), kötü niyetli kodun veritabanına kaydedildiği ve daha sonra diğer kullanıcılara sunulduğu bir saldırı türüdür.</p>
+            <p class="warning">NOT: Bu demo, XSS saldırısını göstermek için özellikle savunmasız bırakılmıştır!</p>
+        </div>
+        
+        <!-- Yorum Formu -->
+        <h2>Yorumlar</h2>
+        <form id="commentForm">
+            <textarea id="commentText" placeholder="Yorum yazın..."></textarea>
+            <div>
+                <button type="submit">Yorum Ekle</button>
+                <button type="button" id="clearButton" style="background-color: #e74c3c;">Tüm Yorumları Temizle</button>
+            </div>
+        </form>
+        
+        <!-- Yorumların Gösterileceği Alan -->
+        <h3>Yorum Listesi</h3>
+        <div id="commentCount" style="margin-bottom: 10px; font-weight: bold;">Henüz yorum yok</div>
+        <div class="comments" id="commentList">
+            <!-- Yorumlar buraya eklenecek -->
+        </div>
+        
+        <!-- Saldırı Örneği -->
+        <div class="explanation" style="margin-top: 30px;">
+            <h3>Stored XSS Saldırı Örnekleri</h3>
+            <p>Aşağıdaki kodları yorum olarak girmeyi deneyin:</p>
+            
+            <div class="code-example">
+                &lt;script&gt;alert('Stored XSS Saldırısı Başarılı!');&lt;/script&gt;
+            </div>
+            
+            <div class="code-example">
+                &lt;img src="x" onerror="alert('Stored XSS!');"&gt;
+            </div>
+            
+            <div class="code-example">
+                &lt;div style="color:red; font-size:30px;"&gt;Hacklendim!&lt;/div&gt;
+            </div>
+            
+            <ol>
+                <li>Bu kodlardan birini yorum kutusuna kopyalayıp yapıştırın</li>
+                <li>"Yorum Ekle" düğmesine tıklayın</li>
+                <li>Saldırı kodu hemen çalışacak ve yorumlar listesine eklenecek</li>
+                <li>Tarayıcıyı yenilediğinizde, kaydedilen kötü niyetli kod tekrar çalışacak</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        // Sayfa yüklendiğinde yorumları göster
+        document.addEventListener('DOMContentLoaded', function() {
+            loadComments();
+            
+            // Yorum formunu dinle
+            document.getElementById('commentForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addComment();
+            });
+            
+            // Temizleme düğmesini dinle
+            document.getElementById('clearButton').addEventListener('click', function() {
+                if (confirm('Tüm yorumları silmek istediğinize emin misiniz?')) {
+                    localStorage.removeItem('storedComments');
+                    loadComments();
+                }
+            });
+        });
+        
+        // Yorum ekle
+        function addComment() {
+            const commentText = document.getElementById('commentText').value;
+            
+            if (commentText.trim() === '') {
+                alert('Lütfen bir yorum yazın!');
+                return;
+            }
+            
+            // Yorumu localStorage'a kaydet
+            let comments = JSON.parse(localStorage.getItem('storedComments') || '[]');
+            comments.push(commentText);
+            localStorage.setItem('storedComments', JSON.stringify(comments));
+            
+            // Yorumları yeniden yükle
+            loadComments();
+            
+            // Form alanını temizle
+            document.getElementById('commentText').value = '';
+        }
+        
+        // Yorumları yükle ve göster
+        function loadComments() {
+            const comments = JSON.parse(localStorage.getItem('storedComments') || '[]');
+            const commentList = document.getElementById('commentList');
+            const commentCount = document.getElementById('commentCount');
+            
+            // Yorum sayısını güncelle
+            if (comments.length === 0) {
+                commentCount.textContent = 'Henüz yorum yok';
+            } else {
+                commentCount.textContent = `${comments.length} yorum bulundu`;
+            }
+            
+            // Yorumları temizle
+            commentList.innerHTML = '';
+            
+            // Her yorumu ekle
+            comments.forEach(function(comment, index) {
+                const commentDiv = document.createElement('div');
+                commentDiv.className = 'comment';
+                
+                // ÖNEMLİ: innerHTML kullanarak güvenlik açığı oluşturuyoruz
+                // Gerçek uygulamalarda asla böyle yapmayın!
+                commentDiv.innerHTML = `
+                    <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
+                        Yorum #${index + 1}
+                    </div>
+                    <div>${comment}</div>
+                `;
+                
+                commentList.appendChild(commentDiv);
+            });
+        }
+    </script>
+</body>
+</html>

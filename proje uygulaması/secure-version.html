@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Güvenli XSS Önlemleri</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Content Security Policy (CSP) Örneği -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self';">
+</head>
+<body>
+    <div class="container">
+        <h1>XSS Saldırılarına Karşı Güvenli Kodlama</h1>
+        
+        <div class="explanation">
+            <p>Bu sayfada, XSS saldırılarına karşı alınabilecek güvenlik önlemleri ve güvenli kodlama örnekleri gösterilmektedir.</p>
+        </div>
+        
+        <!-- Stored XSS Güvenli Versiyonu -->
+        <h2>Stored XSS - Güvenli Versiyon</h2>
+        <form id="secureCommentForm">
+            <textarea id="secureCommentText" placeholder="Yorum yazın..."></textarea>
+            <button type="submit">Yorum Ekle</button>
+        </form>
+        
+        <div class="comments" id="secureCommentSection">
+            <!-- Yorumlar buraya eklenecek -->
+        </div>
+        
+        <!-- Reflected XSS Güvenli Versiyonu -->
+        <h2>Reflected XSS - Güvenli Versiyon</h2>
+        <form id="secureSearchForm">
+            <input type="text" id="secureSearchQuery" placeholder="Bir ürün arayın...">
+            <button type="submit">Ara</button>
+        </form>
+        
+        <div id="secureSearchResults">
+            <!-- Arama sonuçları buraya eklenecek -->
+        </div>
+        
+        <!-- DOM-Based XSS Güvenli Versiyonu -->
+        <h2>DOM-Based XSS - Güvenli Versiyon</h2>
+        <div id="secureWelcomeMessage">
+            <!-- Karşılama mesajı buraya eklenecek -->
+        </div>
+        
+        <!-- Güvenlik Önlemleri -->
+        <div class="info-box">
+            <h3>XSS Güvenlik Önlemleri</h3>
+            
+            <h4>1. Girdi Doğrulama ve Temizleme</h4>
+            <p>Tüm kullanıcı girdileri hem istemci hem de sunucu tarafında doğrulanmalı ve temizlenmelidir.</p>
+            <div class="code-example">
+                // JavaScript ile temizleme örneği
+                function escapeHTML(str) {
+                    return str
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#039;');
+                }
+            </div>
+            
+            <h4>2. Content Security Policy (CSP)</h4>
+            <p>CSP, hangi kaynaklardan gelen içeriğin çalıştırılabileceğini belirleyen bir güvenlik katmanıdır.</p>
+            <div class="code-example">
+                &lt;meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self';"&gt;
+            </div>
+            
+            <h4>3. Güvenli DOM Manipülasyonu</h4>
+            <p>innerHTML yerine daha güvenli alternatifleri kullanın:</p>
+            <div class="code-example">
+                // innerHTML yerine textContent kullanın
+                element.textContent = userInput; // Güvenli
+                
+                // Veya document.createTextNode kullanın
+                const text = document.createTextNode(userInput);
+                element.appendChild(text);
+            </div>
+            
+            <h4>4. HttpOnly Çerezler</h4>
+            <p>Çerezleri JavaScript erişiminden koruyarak çerez hırsızlığını engelleyin.</p>
+            <div class="code-example">
+                // Sunucu tarafında:
+                Set-Cookie: session=123; HttpOnly; Secure; SameSite=Strict
+            </div>
+        </div>
+        
+        <script src="secure-code.js"></script>
+        <a href="index.html" class="back-link">← Ana Sayfaya Dön</a>
+    </div>
+</body>
+</html>
